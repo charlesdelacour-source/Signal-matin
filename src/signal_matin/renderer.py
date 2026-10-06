@@ -937,10 +937,93 @@ def _page_standard_tail(edition: MorningEdition, number: int) -> str:
     return _page(edition, number, "Journee & liens", body, slug="standard-tail")
 
 
+def _essentiel_stories(items: list[NewsItem], *, featured_chars: int,
+                       side_chars: int) -> str:
+    if not items:
+        return ""
+    side = "".join(dossier_story(item, max_chars=side_chars) for item in items[1:3])
+    return (
+        '<div class="essentiel-stories">'
+        + dossier_story(items[0], featured=True, max_chars=featured_chars)
+        + (f'<div class="essentiel-side">{side}</div>' if side else "")
+        + '</div>'
+    )
+
+
+def _page_essentiel_front(edition: MorningEdition) -> str:
+    left = weather_block(edition) + agenda_block(edition.agenda, 6)
+    news = [item for item in (edition.news.lead, *edition.news.all_secondary()) if item][:3]
+    right = section_header("A la une", "Trois sujets pour comprendre l'actualite")
+    if news:
+        right += news_lead(news[0], 460)
+        right += news_followups(news[1:3], summary_limit=260)
+    else:
+        right += '<p class="empty-state">Aucune actualite disponible : aucun flux n\'a pu etre lu et aucun article n\'est invente.</p>'
+    tasks = "".join(filter(None, [
+        task_list("Priorites", edition.priorities, 3),
+        task_list("Sujets en cours", edition.reminders, 6),
+    ]))
+    band = f'<div class="essentiel-tasks">{tasks}</div>' if tasks else ""
+    return _page(
+        edition, 1, "Le briefing",
+        f'<div class="briefing-grid essentiel-front"><div>{left}</div><div>{right}</div></div>'
+        + band,
+        first=True, slug="front",
+    )
+
+
+def _page_essentiel_tech(edition: MorningEdition, number: int) -> str:
+    body = section_header("Technologie & IA", "Trois sujets, l'essentiel a retenir")
+    if edition.tech_news:
+        body += _essentiel_stories(edition.tech_news[:3], featured_chars=900, side_chars=480)
+    elif edition.tech:
+        body += digest_list("La veille technique", edition.tech, 3)
+    else:
+        body += '<p class="empty-state">Aucune actualite technique recente n a pu etre verifiee ce matin.</p>'
+    if edition.recommendations:
+        cards = "".join(
+            f'<article class="recommendation"><span>{_e(item.kind)}</span>'
+            f'<h3>{_e(item.title)}</h3><p>{_e(_truncate(item.reason, 400))}</p></article>'
+            for item in edition.recommendations[:3]
+        )
+        body += (
+            f'<section class="essentiel-ia">{section_header("Le point IA", "A tester cette semaine")}'
+            f'<div class="essentiel-ia-grid">{cards}</div></section>'
+        )
+    return _page(edition, number, "Technologie & IA", body, slug="tech essentiel-tech")
+
+
+def _page_essentiel_curiosity(edition: MorningEdition, number: int) -> str:
+    body = section_header("Veille & curiosites", "Sciences, culture et signaux faibles")
+    if edition.curiosity_news:
+        body += _essentiel_stories(edition.curiosity_news[:3], featured_chars=900, side_chars=480)
+    fact = edition.extras.fun_fact
+    if fact:
+        source = f'<small>{_e(fact.source.name)}</small>' if fact.source else ""
+        body += (
+            '<aside class="essentiel-fun-fact"><span>Le savoir inutile</span>'
+            f'<h3>{_e(fact.title)}</h3><p>{_e(_truncate(fact.summary, 600))}</p>{source}</aside>'
+        )
+    if not edition.curiosity_news and not fact:
+        body += curiosity_engraving()
+    return _page(edition, number, "Veille & curiosite", body, slug="curiosity essentiel-curiosity")
+
+
+def _pages_essentiel(edition: MorningEdition) -> list[str]:
+    """Edition courte : une, tech & IA, veille & curiosites. Trois pages, sans jeux."""
+    return [
+        _page_essentiel_front(edition),
+        _page_essentiel_tech(edition, 2),
+        _page_essentiel_curiosity(edition, 3),
+    ]
+
+
 def render_html(edition: MorningEdition, css: str | None = None) -> str:
     css = CSS_PATH.read_text(encoding="utf-8") if css is None else css
     pagination = PAGINATION_PATH.read_text(encoding="utf-8")
     mode = edition.edition.density
+    if mode == DensityMode.ESSENTIEL:
+        return _document(edition, _pages_essentiel(edition), css, pagination, mode)
     pages = [_page_one(edition)]
     secondary = edition.news.all_secondary()
     brief_count = min(FRONT_BRIEF_LIMIT, len(secondary))
@@ -1001,6 +1084,11 @@ def render_html(edition: MorningEdition, css: str | None = None) -> str:
         pages.extend(curiosity_pages)
         number += len(curiosity_pages)
         pages.append(_page_learning(edition, number))
+    return _document(edition, pages, css, pagination, mode)
+
+
+def _document(edition: MorningEdition, pages: list[str], css: str,
+              pagination: str, mode: DensityMode) -> str:
     return f"""<!doctype html>
 <html lang="fr">
 <head>

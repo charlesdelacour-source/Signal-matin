@@ -129,3 +129,21 @@ def test_delayed_print_reuses_real_task_action():
     assert "$SourceAction.Execute" in script
     assert "$SourceAction.Arguments" in script
     assert "Start-ScheduledTask -TaskName $TacheSource" not in script
+
+
+def test_essentiel_edition_fits_three_pages_without_games():
+    from signal_matin.models import DigestItem, Extras
+
+    demo = construire_demo(dt.date(2026, 9, 26))
+    demo = demo.model_copy(update={"extras": Extras(fun_fact=DigestItem(
+        title="Les loutres se tiennent la main",
+        summary="Pour ne pas deriver pendant leur sommeil.",
+    ))})
+    edition = normaliser_edition(demo, mode=DensityMode.ESSENTIEL)
+    html = render_html(edition)
+    assert html.count('class="sheet ') == 3
+    assert "Mots croises" not in html
+    assert "Le savoir inutile" in html
+    layout = inspecter_html(html)
+    assert len(layout) == 3
+    assert not [page for page in layout if page["overflow"]]

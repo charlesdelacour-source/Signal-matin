@@ -5,6 +5,7 @@ paper:
   title: "Signal Matin"
   subtitle: "Le journal anti-scroll"
   motto: "Voir clair avant de voir l'écran."
+  # mode: "essentiel"  # edition courte en 3 pages (une, tech & IA, veille & curiosites)
 
 modules:
   weather: true
@@ -51,7 +52,21 @@ tech:
   max_age_hours: 96
   feeds: []
 
+curiosity:
+  limit: 3
+  feeds: []
+  # - name: "Le Monde Sciences"
+  #   category: "Sciences"
+  #   url: "https://www.lemonde.fr/sciences/rss_full.xml"
+
 recommendations: []
+
+extras:
+  fun_fact: {}
+  # title: "Le savoir inutile du jour"
+  # text: "Une anecdote verifiee en deux phrases."
+  # source: "Source"
+
 personal:
   greeting: "Bonjour."
   note: ""

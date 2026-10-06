@@ -117,10 +117,29 @@ def build_live(
         title=item.title, summary=item.summary, source=item.source,
         importance=item.importance,
     ) for item in tech_news]
-    curiosities = [
-        item for item in news_items
-        if item.category.casefold() in {"science", "sciences", "culture"}
-    ][:4]
+    curiosity_feeds = setting(config, "curiosity.feeds", []) or []
+    if curiosity_feeds and _enabled(config, "curiosity") and _enabled(config, "rss"):
+        curiosities, curiosity_status = collect_rss(
+            curiosity_feeds, now,
+            limit=int(setting(config, "curiosity.limit", 3) or 3),
+            max_age_hours=int(setting(config, "curiosity.max_age_hours", 96) or 96),
+            status_name="Veille & curiosite",
+        )
+        statuses.append(curiosity_status)
+    else:
+        curiosities = [
+            item for item in news_items
+            if item.category.casefold() in {"science", "sciences", "culture"}
+        ][:4]
+    fun_fact_config = setting(config, "extras.fun_fact", {}) or {}
+    fun_fact = None
+    if isinstance(fun_fact_config, dict) and fun_fact_config.get("title"):
+        fun_fact = DigestItem(
+            title=str(fun_fact_config["title"]),
+            summary=str(fun_fact_config.get("text") or ""),
+            source=(SourceRef(name=str(fun_fact_config["source"]))
+                    if fun_fact_config.get("source") else None),
+        )
     recommendations = (
         _recommendations(setting(config, "recommendations", []) or [])
         if _enabled(config, "recommendations") else []
@@ -154,9 +173,11 @@ def build_live(
             note=str(setting(config, "personal.note", "") or ""),
             free_window=str(setting(config, "personal.free_window", "") or ""),
         ),
-        extras=Extras(quote=quote),
+        extras=Extras(quote=quote, fun_fact=fun_fact),
         learning=(construire_apprentissage_du_jour(date)
                   if _enabled(config, "games") or _enabled(config, "tech_vocabulary")
                   else LearningPage()),
     )
+    if str(mode).lower() == "auto":
+        mode = str(setting(config, "paper.mode", "auto") or "auto")
     return normaliser_edition(edition, mode=mode)

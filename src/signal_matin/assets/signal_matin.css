@@ -501,3 +501,28 @@ footer { position: absolute; left: 11mm; right: 11mm; bottom: 6mm; display: flex
 @media screen and (max-width: 900px) {
   .publication { transform-origin: top left; }
 }
+
+/* Edition essentielle : trois pages, trois sujets par rubrique. */
+.essentiel-front .news-lead h2 { font-size: 19pt; }
+.essentiel-front .news-followups { columns: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 0 5mm; margin-top: 4mm; }
+.essentiel-front .news-followups .news-card + .news-card { padding-left: 5mm; border-left: var(--hairline) solid var(--shade); }
+.essentiel-front .news-followups .news-card h3 { font-size: 12pt; }
+.essentiel-tasks { margin-top: 5mm; }
+.essentiel-tasks .section-header { border-top-width: .7mm; }
+.essentiel-tasks .numbered-list { columns: 2; column-gap: 6mm; column-rule: var(--hairline) solid var(--shade); }
+.essentiel-tasks .numbered-list li { break-inside: avoid; }
+.essentiel-stories { display: grid; grid-template-columns: 1.25fr 1fr; gap: 0 5mm; }
+.essentiel-stories > .is-featured { padding-right: 5mm; border-right: var(--hairline) solid var(--ink); }
+.essentiel-stories > .is-featured h2 { font-size: 20pt; line-height: 1.08; }
+.essentiel-stories .dossier-copy p { font-size: 9.2pt; line-height: 1.45; }
+.essentiel-side .dossier-story + .dossier-story { margin-top: 4mm; padding-top: 4mm; border-top: var(--hairline) solid var(--shade); }
+.essentiel-ia { margin-top: 7mm; }
+.essentiel-ia .section-header { border-top-width: .7mm; }
+.essentiel-ia-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 5mm; }
+.essentiel-ia-grid .recommendation + .recommendation { padding-left: 5mm; border-left: var(--hairline) solid var(--shade); }
+.essentiel-ia-grid .recommendation p { font-size: 8.4pt; line-height: 1.4; }
+.essentiel-fun-fact { margin-top: 8mm; padding: 4mm 5mm; border: .7mm solid var(--ink); }
+.essentiel-fun-fact > span { font: 700 6pt var(--sans); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
+.essentiel-fun-fact h3 { margin: 1.2mm 0 1.5mm; font-family: var(--display); font-size: 15pt; line-height: 1.1; }
+.essentiel-fun-fact p { margin: 0; font-size: 9.4pt; line-height: 1.45; }
+.essentiel-fun-fact small { display: block; margin-top: 1.5mm; font: 6pt var(--sans); color: var(--muted); }

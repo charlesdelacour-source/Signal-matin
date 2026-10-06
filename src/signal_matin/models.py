@@ -16,6 +16,7 @@ class DensityMode(str, Enum):
     COMPACT = "compact"
     STANDARD = "standard"
     EXTENDED = "extended"
+    ESSENTIEL = "essentiel"
 
 
 class Importance(str, Enum):
@@ -182,6 +183,7 @@ class Extras(Modele):
     stat_of_day: DigestItem | None = None
     quiz: QuizBlock | None = None
     reflection: str = Field(default="", max_length=420)
+    fun_fact: DigestItem | None = None
 
 
 class PersonalBlock(Modele):

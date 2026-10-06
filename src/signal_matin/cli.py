@@ -86,7 +86,7 @@ def _common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--config", default="config.yaml", help="fichier YAML local")
     parser.add_argument("--input", help="edition JSON deja normalisee")
     parser.add_argument("--date", type=_date, default=dt.date.today())
-    parser.add_argument("--mode", choices=("auto", "compact", "standard", "extended"), default="auto")
+    parser.add_argument("--mode", choices=("auto", "compact", "standard", "extended", "essentiel"), default="auto")
     parser.add_argument("--output", default="", help="chemin de sortie personnalisé")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--demo", action="store_true", help="force les donnees fictives")
@@ -123,7 +123,7 @@ def build_parser() -> argparse.ArgumentParser:
     serve = sub.add_parser(
         "serve", help="publie l'édition liseuse sur une page privée du réseau local")
     serve.add_argument("--config", default="config.yaml", help="fichier YAML local")
-    serve.add_argument("--mode", choices=("auto", "compact", "standard", "extended"), default="auto")
+    serve.add_argument("--mode", choices=("auto", "compact", "standard", "extended", "essentiel"), default="auto")
     group = serve.add_mutually_exclusive_group()
     group.add_argument("--demo", action="store_true", help="force les données fictives")
     group.add_argument("--live", action="store_true", help="force les connecteurs configurés")
